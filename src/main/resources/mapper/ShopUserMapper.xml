@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.akkaha.shop.db.client.ShopUserMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="cc.akkaha.shop.db.model.ShopUser">
+        <id column="id" property="id" />
+        <result column="name" property="name" />
+        <result column="country" property="country" />
+        <result column="phone" property="phone" />
+        <result column="remark" property="remark" />
+        <result column="created_at" property="createdAt" />
+        <result column="updated_at" property="updatedAt" />
+    </resultMap>
+
+    <!-- 通用查询结果列 -->
+    <sql id="Base_Column_List">
+        id, name, country, phone, remark, created_at AS createdAt, updated_at AS updatedAt
+    </sql>
+
+</mapper>
