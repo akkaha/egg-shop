@@ -1,4 +1,4 @@
-package cc.akkaha.shop.util;
+package cc.akkaha.common.util;
 
 import org.apache.commons.lang3.time.DateFormatUtils;
 

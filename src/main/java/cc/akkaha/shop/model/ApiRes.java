@@ -37,6 +37,16 @@ public class ApiRes {
         this.data = data;
     }
 
+    public void markInvalid(String msg) {
+        this.code = ApiCode.INVALID;
+        this.msg = msg;
+    }
+
+    public void markError(String msg) {
+        this.code = ApiCode.ERROR;
+        this.msg = msg;
+    }
+
     public static ApiRes okPageListData(Object data, Integer total) {
         ApiRes res = new ApiRes();
         HashMap<String, Object> dataMap = new HashMap<>();

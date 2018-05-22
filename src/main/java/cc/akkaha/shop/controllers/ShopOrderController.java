@@ -1,16 +1,20 @@
 package cc.akkaha.shop.controllers;
 
+import cc.akkaha.common.util.DateUtils;
+import cc.akkaha.common.util.JsonUtils;
 import cc.akkaha.shop.constants.OrderStatus;
+import cc.akkaha.shop.controllers.model.NewOrder;
+import cc.akkaha.shop.controllers.model.OrderDetail;
 import cc.akkaha.shop.controllers.model.QueryShopOrder;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
+import cc.akkaha.shop.db.model.ShopUser;
 import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.db.service.ShopOrderService;
 import cc.akkaha.shop.model.ApiRes;
 import cc.akkaha.shop.model.OrderBill;
 import cc.akkaha.shop.service.BillService;
-import cc.akkaha.shop.util.DateUtils;
-import cc.akkaha.shop.util.JsonUtils;
+import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -27,11 +31,13 @@ import java.util.stream.Collectors;
 public class ShopOrderController {
 
     @Autowired
-    private ShopOrderService orderService;
+    private ShopOrderService shopOrderService;
     @Autowired
     private BillService billService;
     @Autowired
     private OrderItemService orderItemService;
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/query")
     public Object query(@RequestBody QueryShopOrder query) {
@@ -42,7 +48,7 @@ public class ShopOrderController {
         if (null != query.getUser()) {
             userOrderWrapper.eq(ShopOrder.USER, query.getUser());
         }
-        Page page = orderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
+        Page page = shopOrderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
                         query.getSize(),
                         ShopOrder.CREATED_AT, false),
                 userOrderWrapper);
@@ -51,8 +57,9 @@ public class ShopOrderController {
         EntityWrapper<OrderItem> orderItemWrapper = new EntityWrapper<>();
         List<ShopOrder> records = page.getRecords();
         if (null != records && !records.isEmpty()) {
-            List<Integer> userOrderIds = records.stream().map(ShopOrder::getId).collect(Collectors
-                    .toList());
+            List<Integer> userOrderIds = records.stream()
+                    .map(ShopOrder::getId)
+                    .collect(Collectors.toList());
             orderItemWrapper
                     .setSqlSelect(OrderItem.USER + ",count(" + OrderItem.WEIGHT + ") count")
                     .in(OrderItem.USER, userOrderIds)
@@ -68,14 +75,24 @@ public class ShopOrderController {
     }
 
     @PostMapping("/insert")
-    public Object insert(@RequestBody ShopOrder order) {
+    public Object insert(@RequestBody NewOrder order) {
         ApiRes res = new ApiRes();
-        order.setStatus(OrderStatus.STATUS_NEW);
-        boolean ret = order.insert();
-        if (ret) {
-            res.setData(order);
+        ShopUser user = order.getUser();
+        if (null != user && StringUtils.isNotEmpty(user.getName())) {
+            if (null != user.getId() && user.getId() > 0) { // old user
+                OrderDetail detail = orderService.newOrder(user.getId(), order.getSixWeights(), order.getSevenWeights());
+                res.setData(detail);
+            } else { // new user
+                boolean bInsert = user.insert();
+                if (bInsert) {
+                    OrderDetail detail = orderService.newOrder(user.getId(), order.getSixWeights(), order.getSevenWeights());
+                    res.setData(detail);
+                } else {
+                    res.markError("新建用户失败");
+                }
+            }
         } else {
-            res.setMsg("创建失败!");
+            res.markInvalid("用户不能为空");
         }
         return res;
     }
@@ -107,7 +124,7 @@ public class ShopOrderController {
     @GetMapping("/detail/{id}")
     public Object detail(@PathVariable("id") String id) {
         ApiRes res = new ApiRes();
-        ShopOrder order = orderService.selectById(id);
+        ShopOrder order = shopOrderService.selectById(id);
         HashMap<String, Object> data = new HashMap<>();
         data.put("order", order);
         OrderItem orderItem = new OrderItem();
@@ -123,7 +140,7 @@ public class ShopOrderController {
     public Object pay(@PathVariable("id") String id,
                       @RequestParam(value = "date", required = false) String date) {
         ApiRes res = new ApiRes();
-        ShopOrder order = orderService.selectById(id);
+        ShopOrder order = shopOrderService.selectById(id);
         HashMap<String, Object> data = new HashMap<>();
         data.put("order", order);
         if (OrderStatus.STATUS_FINISHED.equals(order.getStatus())) {

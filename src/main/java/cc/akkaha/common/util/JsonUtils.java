@@ -1,4 +1,4 @@
-package cc.akkaha.shop.util;
+package cc.akkaha.common.util;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
