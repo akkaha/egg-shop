@@ -33,8 +33,13 @@ public class OrderItemController {
         if (null != query.getUser()) {
             wrapper.eq(OrderItem.USER, query.getUser());
         }
-        Page page = itemService.selectPage(new Page<OrderItem>(query.getCurrent(), query.getSize(),
-                        OrderItem.CREATED_AT, false),
+        Page page = itemService.selectPage(
+                new Page<OrderItem>(
+                        query.getCurrent(),
+                        query.getSize(),
+                        OrderItem.CREATED_AT,
+                        false
+                ),
                 wrapper);
         res.setData(page);
         return res;
@@ -67,14 +72,44 @@ public class OrderItemController {
         return res;
     }
 
-    @PostMapping("/update")
-    public Object update(@RequestBody OrderItem item) {
+    @PostMapping("/dec")
+    public Object dec(@RequestBody OrderItem item) {
         ApiRes res = new ApiRes();
-        boolean ret = item.updateById();
-        if (ret) {
-            res.setData(item);
+        if (null == item.getCount() || item.getCount() - 1 < 0) {
+            res.markInvalid("不能少于0");
         } else {
-            res.setMsg("更新失败!");
+            OrderItem toUpdate = new OrderItem();
+            toUpdate.setId(item.getId());
+            toUpdate.setCount(item.getCount() - 1);
+            EntityWrapper wrapper = new EntityWrapper<OrderItem>();
+            wrapper.eq(OrderItem.ID, item.getId()).eq(OrderItem.COUNT, item.getCount());
+            boolean ret = toUpdate.update(wrapper);
+            if (ret) {
+                res.setData(toUpdate.getCount());
+            } else {
+                res.markInvalid("更新失败!");
+            }
+        }
+        return res;
+    }
+
+    @PostMapping("/inc")
+    public Object inc(@RequestBody OrderItem item) {
+        ApiRes res = new ApiRes();
+        if (null == item.getCount()) {
+            res.markInvalid("格式错误");
+        } else {
+            OrderItem toUpdate = new OrderItem();
+            toUpdate.setId(item.getId());
+            toUpdate.setCount(item.getCount() + 1);
+            EntityWrapper wrapper = new EntityWrapper<OrderItem>();
+            wrapper.eq(OrderItem.ID, item.getId()).eq(OrderItem.COUNT, item.getCount());
+            boolean ret = toUpdate.update(wrapper);
+            if (ret) {
+                res.setData(toUpdate.getCount());
+            } else {
+                res.markInvalid("更新失败!");
+            }
         }
         return res;
     }

@@ -19,6 +19,9 @@ import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +33,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/shop/order")
 public class ShopOrderController {
 
+    private static Logger logger = LoggerFactory.getLogger(ShopOrderController.class);
     @Autowired
     private ShopOrderService shopOrderService;
     @Autowired
@@ -79,17 +83,23 @@ public class ShopOrderController {
         ApiRes res = new ApiRes();
         ShopUser user = order.getUser();
         if (null != user && StringUtils.isNotEmpty(user.getName())) {
-            if (null != user.getId() && user.getId() > 0) { // old user
-                OrderDetail detail = orderService.newOrder(user.getId(), order.getSixWeights(), order.getSevenWeights());
-                res.setData(detail);
-            } else { // new user
-                boolean bInsert = user.insert();
-                if (bInsert) {
+            try {
+                if (null != user.getId() && user.getId() > 0) { // old user
                     OrderDetail detail = orderService.newOrder(user.getId(), order.getSixWeights(), order.getSevenWeights());
                     res.setData(detail);
-                } else {
-                    res.markError("新建用户失败");
+                } else { // new user
+                    boolean bInsert = user.insert();
+                    if (bInsert) {
+                        OrderDetail detail = orderService.newOrder(user.getId(), order.getSixWeights(), order.getSevenWeights());
+                        res.setData(detail);
+                    } else {
+                        res.markError("新建用户失败");
+                    }
                 }
+            } catch (Throwable t) {
+                String stackTrace = ExceptionUtils.getStackTrace(t);
+                logger.warn(stackTrace);
+                res.markInvalid(stackTrace);
             }
         } else {
             res.markInvalid("用户不能为空");

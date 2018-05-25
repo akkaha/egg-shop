@@ -43,6 +43,7 @@ CREATE TABLE `egg_order_item` (
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uniq_order_level_weight` (`order`,`level`,`weight`),
   KEY `idx_weight` (`weight`),
   KEY `fk_user` (`user`),
   KEY `fk_level` (`level`),
