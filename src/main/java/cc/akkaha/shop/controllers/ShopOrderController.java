@@ -200,13 +200,16 @@ public class ShopOrderController {
         ShopOrder order = shopOrderService.selectById(id);
         HashMap<String, Object> data = new HashMap<>();
         data.put("order", order);
+        ShopUser shopUser = new ShopUser();
+        shopUser.setId(order.getUser());
+        data.put("user", shopUser.selectById());
         if (OrderStatus.STATUS_FINISHED.equals(order.getStatus())) {
             data.put("bill", JsonUtils.parse(order.getBill(), OrderBill.class));
         } else {
             if (StringUtils.isEmpty(date)) {
                 date = DateUtils.currentDate();
             }
-            OrderBill orderBill = billService.payUserOrder(order.getId(), date);
+            OrderBill orderBill = billService.payShopOrder(order.getId(), date);
             data.put("bill", orderBill);
             data.put("priceExtra", orderBill.getInner().priceExtra);
         }

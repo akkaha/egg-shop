@@ -57,6 +57,7 @@ public class OrderBillController {
                     price.setDay(day);
                     price.setPrice(new BigDecimal(item.getPrice()));
                     price.setWeight(new BigDecimal(item.getWeight()));
+                    price.setLevel(item.getLevel());
                     prices.add(price);
                 }
             });

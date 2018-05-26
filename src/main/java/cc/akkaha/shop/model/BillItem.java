@@ -1,20 +1,26 @@
 package cc.akkaha.shop.model;
 
+/**
+ * for front end display
+ */
 public class BillItem {
 
     private String weight;
     private String price;
     private Integer user;
-    private Integer car;
+    private Integer count;
+    private Integer level;
 
     public BillItem() {
 
     }
 
-    public BillItem(String weight, String price, Integer user) {
+    public BillItem(String weight, String price, Integer user, Integer count, Integer level) {
         this.weight = weight;
         this.price = price;
         this.user = user;
+        this.count = count;
+        this.level = level;
     }
 
     public String getWeight() {
@@ -41,11 +47,19 @@ public class BillItem {
         this.user = user;
     }
 
-    public Integer getCar() {
-        return car;
+    public Integer getCount() {
+        return count;
     }
 
-    public void setCar(Integer car) {
-        this.car = car;
+    public void setCount(Integer count) {
+        this.count = count;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 }

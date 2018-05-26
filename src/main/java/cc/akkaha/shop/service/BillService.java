@@ -4,5 +4,5 @@ import cc.akkaha.shop.model.OrderBill;
 
 public interface BillService {
 
-    OrderBill payUserOrder(Integer id, String date);
+    OrderBill payShopOrder(Integer id, String date);
 }

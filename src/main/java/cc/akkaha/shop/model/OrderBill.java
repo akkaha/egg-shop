@@ -20,53 +20,91 @@ public class OrderBill {
     private String meanPrice;
     private PriceExtra priceExtra;
     private List<BillItem> items = new ArrayList<>();
-    private TreeMap<String, String> priceRange = new TreeMap<>();
+    private OrderBillSummary sixSummary = new OrderBillSummary();
+    private OrderBillSummary sevenSummary = new OrderBillSummary();
+    // 转字符串前端读
+    private TreeMap<String, String> sixPriceRange = new TreeMap<>();
+    // 转字符串前端读
+    private TreeMap<String, String> sevenPriceRange = new TreeMap<>();
     private String remark = StringUtils.EMPTY;
 
+    // this be used by controller to return to front
     @JsonIgnore
     private OrderBillInner inner = new OrderBillInner();
 
     public static OrderBill parse(String date, List<OrderItem> orderItems,
-                                  TreeMap<BigDecimal, BigDecimal> priceRange,
+                                  PriceRange priceRange,
                                   cc.akkaha.shop.db.model.PriceExtra priceExtra) {
         OrderBill bill = new OrderBill();
         bill.getInner().priceExtra = priceExtra;
         if (null != priceExtra) {
-            bill.setPriceExtra(new PriceExtra(
-                    priceExtra.getWeightAdjust().stripTrailingZeros().toPlainString()));
+            bill.setPriceExtra(
+                    new PriceExtra(priceExtra.getWeightAdjust().stripTrailingZeros().toPlainString())
+            );
         }
         bill.setDate(date);
-        bill.setTotalCount(orderItems.size());
         if (null != priceRange) {
-            TreeMap<String, String> billPriceRange = bill.getPriceRange();
-            priceRange.forEach((k, v) ->
-                    billPriceRange.put(
+            TreeMap<String, String> billSixPriceRange = bill.getSixPriceRange();
+            priceRange.getSixLevel().forEach((k, v) ->
+                    billSixPriceRange.put(
+                            k.stripTrailingZeros().toPlainString(),
+                            v.stripTrailingZeros().toPlainString()
+                    )
+            );
+            TreeMap<String, String> billSevenPriceRange = bill.getSevenPriceRange();
+            priceRange.getSevenLevel().forEach((k, v) ->
+                    billSevenPriceRange.put(
                             k.stripTrailingZeros().toPlainString(),
                             v.stripTrailingZeros().toPlainString()
                     )
             );
         }
-        BigDecimal totalWeight = BigDecimal.ZERO;
-        BigDecimal totalPrice = BigDecimal.ZERO;
         for (OrderItem item : orderItems) {
             BigDecimal itemWeight = item.getWeight();
-            totalWeight = totalWeight.add(itemWeight);
-            BigDecimal itemPrice = calcItemPrice(itemWeight, priceRange, priceExtra);
+            BigDecimal itemPrice = null;
+            if (6 == item.getLevel()) {
+                bill.sixSummary.addCount(item.getCount());
+                bill.sixSummary.calcTotalWeight.add(itemWeight);
+                itemPrice = calcItemPrice(itemWeight, priceRange.getSixLevel(), priceExtra);
+                if (null != itemPrice) {
+                    bill.sixSummary.calcTotalPrice = bill.sixSummary.calcTotalPrice.add(
+                            itemPrice.multiply(new BigDecimal(item.getCount()))
+                    );
+                }
+            } else if (7 == item.getLevel()) {
+                bill.sevenSummary.addCount(item.getCount());
+                bill.sevenSummary.calcTotalWeight.add(itemWeight);
+                itemPrice = calcItemPrice(itemWeight, priceRange.getSevenLevel(), priceExtra);
+                if (null != itemPrice) {
+                    bill.sevenSummary.calcTotalPrice = bill.sevenSummary.calcTotalPrice.add(
+                            itemPrice.multiply(new BigDecimal(item.getCount()))
+                    );
+                }
+
+            }
             if (null != itemPrice) {
                 bill.items.add(new BillItem(
                         itemWeight.stripTrailingZeros().toPlainString(),
                         itemPrice.stripTrailingZeros().toPlainString(),
-                        item.getUser()
+                        item.getUser(),
+                        item.getCount(),
+                        item.getLevel()
                 ));
-                totalPrice = totalPrice.add(itemPrice);
             } else {
                 bill.items.add(new BillItem(
                         itemWeight.stripTrailingZeros().toPlainString(),
                         StringUtils.EMPTY,
-                        item.getUser()
+                        item.getUser(),
+                        item.getCount(),
+                        item.getLevel()
                 ));
             }
         }
+        bill.sixSummary.summarize();
+        bill.sevenSummary.summarize();
+        bill.setTotalCount(bill.sixSummary.getTotalCount() + bill.sevenSummary.getTotalCount());
+        BigDecimal totalWeight = bill.sixSummary.calcTotalWeight.add(bill.sevenSummary.calcTotalWeight);
+        BigDecimal totalPrice = bill.sixSummary.calcTotalPrice.add(bill.sevenSummary.calcTotalPrice);
         bill.setTotalWeight(totalWeight.stripTrailingZeros().toPlainString());
         bill.setTotalPrice(totalPrice.stripTrailingZeros().toPlainString());
         if (orderItems.isEmpty()) {
@@ -179,14 +217,6 @@ public class OrderBill {
         this.items = items;
     }
 
-    public TreeMap<String, String> getPriceRange() {
-        return priceRange;
-    }
-
-    public void setPriceRange(TreeMap<String, String> priceRange) {
-        this.priceRange = priceRange;
-    }
-
     public String getRemark() {
         return remark;
     }
@@ -209,5 +239,37 @@ public class OrderBill {
 
     public void setInner(OrderBillInner inner) {
         this.inner = inner;
+    }
+
+    public TreeMap<String, String> getSixPriceRange() {
+        return sixPriceRange;
+    }
+
+    public void setSixPriceRange(TreeMap<String, String> sixPriceRange) {
+        this.sixPriceRange = sixPriceRange;
+    }
+
+    public TreeMap<String, String> getSevenPriceRange() {
+        return sevenPriceRange;
+    }
+
+    public void setSevenPriceRange(TreeMap<String, String> sevenPriceRange) {
+        this.sevenPriceRange = sevenPriceRange;
+    }
+
+    public OrderBillSummary getSixSummary() {
+        return sixSummary;
+    }
+
+    public void setSixSummary(OrderBillSummary sixSummary) {
+        this.sixSummary = sixSummary;
+    }
+
+    public OrderBillSummary getSevenSummary() {
+        return sevenSummary;
+    }
+
+    public void setSevenSummary(OrderBillSummary sevenSummary) {
+        this.sevenSummary = sevenSummary;
     }
 }

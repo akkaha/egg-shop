@@ -4,13 +4,15 @@ public class PriceItem {
 
     private String weight;
     private String price;
+    private Integer level;
 
     public PriceItem() {
     }
 
-    public PriceItem(String weight, String price) {
+    public PriceItem(String weight, String price, Integer level) {
         this.weight = weight;
         this.price = price;
+        this.level = level;
     }
 
     public String getWeight() {
@@ -27,5 +29,13 @@ public class PriceItem {
 
     public void setPrice(String price) {
         this.price = price;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 }
