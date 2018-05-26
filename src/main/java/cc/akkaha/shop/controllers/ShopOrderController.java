@@ -6,11 +6,13 @@ import cc.akkaha.shop.constants.OrderStatus;
 import cc.akkaha.shop.controllers.model.NewOrder;
 import cc.akkaha.shop.controllers.model.OrderDetail;
 import cc.akkaha.shop.controllers.model.QueryShopOrder;
+import cc.akkaha.shop.controllers.model.ShopOrderItem;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
 import cc.akkaha.shop.db.model.ShopUser;
 import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.db.service.ShopOrderService;
+import cc.akkaha.shop.db.service.ShopUserService;
 import cc.akkaha.shop.model.ApiRes;
 import cc.akkaha.shop.model.OrderBill;
 import cc.akkaha.shop.service.BillService;
@@ -25,6 +27,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -42,6 +46,8 @@ public class ShopOrderController {
     private OrderItemService orderItemService;
     @Autowired
     private OrderService orderService;
+    @Autowired
+    private ShopUserService shopUserService;
 
     @PostMapping("/query")
     public Object query(@RequestBody QueryShopOrder query) {
@@ -52,27 +58,63 @@ public class ShopOrderController {
         if (null != query.getUser()) {
             userOrderWrapper.eq(ShopOrder.USER, query.getUser());
         }
+        if (null != query.getStatus()) {
+            userOrderWrapper.eq(ShopOrder.STATUS, query.getStatus());
+        }
         Page page = shopOrderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
                         query.getSize(),
                         ShopOrder.CREATED_AT, false),
                 userOrderWrapper);
-        data.put("list", page.getRecords());
+        ArrayList<ShopOrderItem> shopOrderItems = new ArrayList<>();
+        data.put("list", shopOrderItems);
         data.put("total", page.getTotal());
-        EntityWrapper<OrderItem> orderItemWrapper = new EntityWrapper<>();
         List<ShopOrder> records = page.getRecords();
         if (null != records && !records.isEmpty()) {
-            List<Integer> userOrderIds = records.stream()
-                    .map(ShopOrder::getId)
+            HashMap<Integer, List<ShopOrderItem>> userItemMap = new HashMap<>();
+            HashMap<Integer, List<ShopOrderItem>> orderItemMap = new HashMap<>();
+            ArrayList<Integer> orderIds = new ArrayList<>();
+            List<Integer> userIds = records.stream()
+                    .peek(order -> {
+                        ShopOrderItem shopOrderItem = new ShopOrderItem();
+                        shopOrderItems.add(shopOrderItem);
+                        shopOrderItem.setId(order.getId());
+                        shopOrderItem.setStatus(order.getStatus());
+                        shopOrderItem.setCreatedAt(order.getCreatedAt());
+                        Integer userId = order.getUser();
+                        List<ShopOrderItem> items = userItemMap.getOrDefault(userId, new ArrayList<>());
+                        if (items.isEmpty()) {
+                            items.add(shopOrderItem);
+                            userItemMap.put(userId, items);
+                        } else {
+                            items.add(shopOrderItem);
+                        }
+                        Integer orderId = order.getId();
+                        orderIds.add(orderId);
+                        items = userItemMap.getOrDefault(orderId, new ArrayList<>());
+                        if (items.isEmpty()) {
+                            items.add(shopOrderItem);
+                            orderItemMap.put(orderId, items);
+                        } else {
+                            items.add(shopOrderItem);
+                        }
+                    })
+                    .map(ShopOrder::getUser)
                     .collect(Collectors.toList());
-            orderItemWrapper
-                    .setSqlSelect(OrderItem.USER + ",count(" + OrderItem.WEIGHT + ") count")
-                    .in(OrderItem.USER, userOrderIds)
-                    .groupBy(OrderItem.USER);
-            HashMap<Object, Object> countMap = new HashMap<>();
-            orderItemService.selectMaps(orderItemWrapper).forEach(map -> {
-                countMap.put(map.get(OrderItem.USER), map.get("count"));
+            EntityWrapper<ShopUser> wrapper = new EntityWrapper<>();
+            wrapper.in(ShopUser.ID, userIds);
+            shopUserService.selectList(wrapper).forEach(user -> {
+                userItemMap.get(user.getId()).forEach(item -> item.setUser(user.getName()));
             });
-            data.put("count", countMap);
+            EntityWrapper<OrderItem> orderItemWrapper = new EntityWrapper<>();
+            orderItemWrapper
+                    .setSqlSelect("`" + OrderItem.ORDER + "`,sum(" + OrderItem.COUNT + ") count")
+                    .in("`" + OrderItem.ORDER + "`", orderIds)
+                    .groupBy("`" + OrderItem.ORDER + "`");
+            orderItemService.selectMaps(orderItemWrapper).forEach(map -> {
+                Integer orderId = (Integer) map.get(OrderItem.ORDER);
+                BigDecimal count = (BigDecimal) map.get("count");
+                orderItemMap.get(orderId).forEach(item -> item.setCount(count));
+            });
         }
         res.setData(data);
         return res;
