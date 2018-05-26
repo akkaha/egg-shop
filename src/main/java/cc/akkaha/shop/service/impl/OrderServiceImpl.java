@@ -7,12 +7,14 @@ import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
 import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.service.OrderService;
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class OrderServiceImpl implements OrderService {
@@ -63,5 +65,15 @@ public class OrderServiceImpl implements OrderService {
         } else {
             throw new DatabaseOperationException("创建订单失败");
         }
+    }
+
+    @Override
+    public BigDecimal countById(Integer id) {
+        EntityWrapper<OrderItem> orderItemWrapper = new EntityWrapper<>();
+        orderItemWrapper
+                .setSqlSelect("sum(" + OrderItem.COUNT + ") count")
+                .eq("`" + OrderItem.ORDER + "`", id);
+        Map<String, Object> map = orderItemService.selectMap(orderItemWrapper);
+        return (BigDecimal) map.getOrDefault("count", 0);
     }
 }

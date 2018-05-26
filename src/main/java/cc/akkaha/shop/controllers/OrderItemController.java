@@ -5,6 +5,7 @@ import cc.akkaha.shop.controllers.model.QueryOrderItem;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.model.ApiRes;
+import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/shop/order-item")
@@ -22,6 +24,8 @@ public class OrderItemController {
 
     @Autowired
     private OrderItemService itemService;
+    @Autowired
+    private OrderService orderService;
 
     @PostMapping("/query")
     public Object query(@RequestBody QueryOrderItem query) {
@@ -85,7 +89,10 @@ public class OrderItemController {
             wrapper.eq(OrderItem.ID, item.getId()).eq(OrderItem.COUNT, item.getCount());
             boolean ret = toUpdate.update(wrapper);
             if (ret) {
-                res.setData(toUpdate.getCount());
+                HashMap<String, Object> data = new HashMap<>();
+                res.setData(data);
+                data.put("item", toUpdate.getCount());
+                data.put("total", orderService.countById(item.getOrder()));
             } else {
                 res.markInvalid("更新失败!");
             }
@@ -106,7 +113,10 @@ public class OrderItemController {
             wrapper.eq(OrderItem.ID, item.getId()).eq(OrderItem.COUNT, item.getCount());
             boolean ret = toUpdate.update(wrapper);
             if (ret) {
-                res.setData(toUpdate.getCount());
+                HashMap<String, Object> data = new HashMap<>();
+                res.setData(data);
+                data.put("item", toUpdate.getCount());
+                data.put("total", orderService.countById(item.getOrder()));
             } else {
                 res.markInvalid("更新失败!");
             }

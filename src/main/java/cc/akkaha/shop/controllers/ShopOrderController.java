@@ -174,16 +174,21 @@ public class ShopOrderController {
     }
 
     @GetMapping("/detail/{id}")
-    public Object detail(@PathVariable("id") String id) {
+    public Object detail(@PathVariable("id") Integer id) {
         ApiRes res = new ApiRes();
         ShopOrder order = shopOrderService.selectById(id);
         HashMap<String, Object> data = new HashMap<>();
         data.put("order", order);
         OrderItem orderItem = new OrderItem();
-        EntityWrapper<OrderItem> wrapper = new EntityWrapper<>();
-        wrapper.eq(OrderItem.USER, id).orderBy(OrderItem.CREATED_AT, true);
-        List items = orderItem.selectList(wrapper);
+        EntityWrapper<OrderItem> itemWrapper = new EntityWrapper<>();
+        itemWrapper.eq("`" + OrderItem.ORDER + "`", id).orderBy(OrderItem.CREATED_AT, true);
+        List items = orderItem.selectList(itemWrapper);
         data.put("items", items);
+        EntityWrapper<ShopUser> userWrapper = new EntityWrapper<>();
+        userWrapper.eq(ShopUser.ID, order.getUser());
+        ShopUser shopUser = shopUserService.selectOne(userWrapper);
+        data.put("user", shopUser);
+        data.put("total", orderService.countById(id));
         res.setData(data);
         return res;
     }
