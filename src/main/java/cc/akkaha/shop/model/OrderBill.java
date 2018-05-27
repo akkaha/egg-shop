@@ -13,7 +13,7 @@ import java.util.TreeMap;
 public class OrderBill {
 
     private String date;
-    private Integer totalCount;
+    private Integer totalCount = 0;
     private String totalWeight;
     private String meanWeight;
     private String totalPrice;
@@ -115,7 +115,7 @@ public class OrderBill {
         BigDecimal totalPrice = bill.sixSummary.calcTotalPrice.add(bill.sevenSummary.calcTotalPrice);
         bill.setTotalWeight(totalWeight.stripTrailingZeros().toPlainString());
         bill.setTotalPrice(totalPrice.stripTrailingZeros().toPlainString());
-        if (orderItems.isEmpty()) {
+        if (orderItems.isEmpty() || bill.getTotalCount() <= 0) {
             bill.setMeanWeight(BigDecimal.ZERO.stripTrailingZeros().toPlainString());
             bill.setMeanPrice(BigDecimal.ZERO.stripTrailingZeros().toPlainString());
         } else {

@@ -24,14 +24,19 @@ public class OrderBillSummary {
     public void summarize() {
         BigDecimal divisor = new BigDecimal(this.totalCount);
         this.setTotalWeight(this.calcTotalWeight.stripTrailingZeros().toPlainString());
-        this.setMeanWeight(this.calcTotalWeight.divide(divisor, 2, BigDecimal.ROUND_HALF_UP)
-                .stripTrailingZeros().toPlainString()
-        );
         this.setTotalPrice(this.calcTotalPrice.stripTrailingZeros().toPlainString());
-        this.setMeanPrice(
-                this.calcTotalPrice.divide(divisor, 2, BigDecimal.ROUND_HALF_UP)
-                        .stripTrailingZeros().toPlainString()
-        );
+        if (this.totalCount > 0) {
+            this.setMeanWeight(this.calcTotalWeight.divide(divisor, 2, BigDecimal.ROUND_HALF_UP)
+                    .stripTrailingZeros().toPlainString()
+            );
+            this.setMeanPrice(
+                    this.calcTotalPrice.divide(divisor, 2, BigDecimal.ROUND_HALF_UP)
+                            .stripTrailingZeros().toPlainString()
+            );
+        } else {
+            this.setMeanWeight("");
+            this.setMeanPrice("");
+        }
     }
 
     public Integer getTotalCount() {
