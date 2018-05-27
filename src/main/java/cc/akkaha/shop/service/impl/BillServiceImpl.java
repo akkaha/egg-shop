@@ -53,9 +53,10 @@ public class BillServiceImpl implements BillService {
             if (6 == price.getLevel()) {
                 priceRange.addSixLevel(price.getWeight(), price.getPrice());
             } else if (7 == price.getLevel()) {
+                priceRange.addOriginSevenLevel(price.getWeight(), price.getPrice());
                 priceRange.addSevenLevel(
                         price.getWeight(),
-                        price.getPrice().divide(six).multiply(seven)
+                        price.getPrice().divide(six, 5, BigDecimal.ROUND_HALF_UP).multiply(seven)
                 );
             }
         });

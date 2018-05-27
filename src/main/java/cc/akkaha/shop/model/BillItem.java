@@ -10,17 +10,21 @@ public class BillItem {
     private Integer user;
     private Integer count;
     private Integer level;
+    private String totalWeight;
+    private String totalPrice;
 
     public BillItem() {
 
     }
 
-    public BillItem(String weight, String price, Integer user, Integer count, Integer level) {
+    public BillItem(String weight, String price, Integer user, Integer count, Integer level, String totalWeight, String totalPrice) {
         this.weight = weight;
         this.price = price;
         this.user = user;
         this.count = count;
         this.level = level;
+        this.totalWeight = totalWeight;
+        this.totalPrice = totalPrice;
     }
 
     public String getWeight() {
@@ -61,5 +65,21 @@ public class BillItem {
 
     public void setLevel(Integer level) {
         this.level = level;
+    }
+
+    public String getTotalWeight() {
+        return totalWeight;
+    }
+
+    public void setTotalWeight(String totalWeight) {
+        this.totalWeight = totalWeight;
+    }
+
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
     }
 }

@@ -52,7 +52,7 @@ public class OrderBill {
                     )
             );
             TreeMap<String, String> billSevenPriceRange = bill.getSevenPriceRange();
-            priceRange.getSevenLevel().forEach((k, v) ->
+            priceRange.getOriginSevenLevel().forEach((k, v) ->
                     billSevenPriceRange.put(
                             k.stripTrailingZeros().toPlainString(),
                             v.stripTrailingZeros().toPlainString()
@@ -62,23 +62,27 @@ public class OrderBill {
         for (OrderItem item : orderItems) {
             BigDecimal itemWeight = item.getWeight();
             BigDecimal itemPrice = null;
+            BigDecimal itemCount = new BigDecimal(item.getCount());
+            BigDecimal itemTotalWeight = itemWeight.multiply(itemCount);
+            BigDecimal itemTotalPrice = BigDecimal.ZERO;
             if (6 == item.getLevel()) {
                 bill.sixSummary.addCount(item.getCount());
-                bill.sixSummary.calcTotalWeight.add(itemWeight);
+                bill.sixSummary.calcTotalWeight =
+                        bill.sixSummary.calcTotalWeight.add(itemTotalWeight);
                 itemPrice = calcItemPrice(itemWeight, priceRange.getSixLevel(), priceExtra);
                 if (null != itemPrice) {
-                    bill.sixSummary.calcTotalPrice = bill.sixSummary.calcTotalPrice.add(
-                            itemPrice.multiply(new BigDecimal(item.getCount()))
-                    );
+                    itemTotalPrice = itemPrice.multiply(itemCount);
+                    bill.sixSummary.calcTotalPrice = bill.sixSummary.calcTotalPrice.add(itemTotalPrice);
                 }
             } else if (7 == item.getLevel()) {
                 bill.sevenSummary.addCount(item.getCount());
-                bill.sevenSummary.calcTotalWeight.add(itemWeight);
+                bill.sevenSummary.calcTotalWeight =
+                        bill.sevenSummary.calcTotalWeight.add(itemTotalWeight);
                 itemPrice = calcItemPrice(itemWeight, priceRange.getSevenLevel(), priceExtra);
                 if (null != itemPrice) {
-                    bill.sevenSummary.calcTotalPrice = bill.sevenSummary.calcTotalPrice.add(
-                            itemPrice.multiply(new BigDecimal(item.getCount()))
-                    );
+                    itemTotalPrice = itemPrice.multiply(itemCount);
+                    bill.sevenSummary.calcTotalPrice =
+                            bill.sevenSummary.calcTotalPrice.add(itemTotalPrice);
                 }
 
             }
@@ -88,7 +92,9 @@ public class OrderBill {
                         itemPrice.stripTrailingZeros().toPlainString(),
                         item.getUser(),
                         item.getCount(),
-                        item.getLevel()
+                        item.getLevel(),
+                        itemTotalWeight.stripTrailingZeros().toPlainString(),
+                        itemTotalPrice.stripTrailingZeros().toPlainString()
                 ));
             } else {
                 bill.items.add(new BillItem(
@@ -96,7 +102,9 @@ public class OrderBill {
                         StringUtils.EMPTY,
                         item.getUser(),
                         item.getCount(),
-                        item.getLevel()
+                        item.getLevel(),
+                        itemTotalWeight.stripTrailingZeros().toPlainString(),
+                        itemTotalPrice.stripTrailingZeros().toPlainString()
                 ));
             }
         }

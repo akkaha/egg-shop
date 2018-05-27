@@ -90,7 +90,7 @@ public class ShopOrderController {
                         }
                         Integer orderId = order.getId();
                         orderIds.add(orderId);
-                        items = userItemMap.getOrDefault(orderId, new ArrayList<>());
+                        items = orderItemMap.getOrDefault(orderId, new ArrayList<>());
                         if (items.isEmpty()) {
                             items.add(shopOrderItem);
                             orderItemMap.put(orderId, items);
