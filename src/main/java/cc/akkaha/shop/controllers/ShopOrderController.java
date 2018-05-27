@@ -181,7 +181,9 @@ public class ShopOrderController {
         data.put("order", order);
         OrderItem orderItem = new OrderItem();
         EntityWrapper<OrderItem> itemWrapper = new EntityWrapper<>();
-        itemWrapper.eq("`" + OrderItem.ORDER + "`", id).orderBy(OrderItem.CREATED_AT, true);
+        itemWrapper
+                .eq("`" + OrderItem.ORDER + "`", id)
+                .orderBy(OrderItem.LEVEL + "," + OrderItem.WEIGHT, true);
         List items = orderItem.selectList(itemWrapper);
         data.put("items", items);
         EntityWrapper<ShopUser> userWrapper = new EntityWrapper<>();

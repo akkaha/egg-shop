@@ -3,8 +3,9 @@ package cc.akkaha.shop.controllers.model;
 public class NewOrderItem {
 
     private String weight;
+    private Integer level;
     private Integer user;
-    private Integer car;
+    private Integer order;
 
     public String getWeight() {
         return weight;
@@ -12,6 +13,14 @@ public class NewOrderItem {
 
     public void setWeight(String weight) {
         this.weight = weight;
+    }
+
+    public Integer getLevel() {
+        return level;
+    }
+
+    public void setLevel(Integer level) {
+        this.level = level;
     }
 
     public Integer getUser() {
@@ -22,11 +31,11 @@ public class NewOrderItem {
         this.user = user;
     }
 
-    public Integer getCar() {
-        return car;
+    public Integer getOrder() {
+        return order;
     }
 
-    public void setCar(Integer car) {
-        this.car = car;
+    public void setOrder(Integer order) {
+        this.order = order;
     }
 }

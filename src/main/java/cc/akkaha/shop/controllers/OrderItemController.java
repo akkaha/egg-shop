@@ -9,6 +9,7 @@ import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.mapper.Wrapper;
 import com.baomidou.mybatisplus.plugins.Page;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -52,14 +53,26 @@ public class OrderItemController {
     @PostMapping("/insert")
     public Object insert(@RequestBody NewOrderItem item) {
         ApiRes res = new ApiRes();
-        OrderItem order = new OrderItem();
-        order.setWeight(new BigDecimal(item.getWeight()));
-        order.setUser(item.getUser());
-        boolean ret = order.insert();
-        if (ret) {
-            res.setData(order);
+        if (null == item.getLevel()
+                || item.getLevel() > 7
+                || item.getLevel() < 6
+                || null == item.getOrder()
+                || null == item.getUser()
+                || StringUtils.isEmpty(item.getWeight())
+                ) {
+            res.markInvalid("数据格式不对");
         } else {
-            res.setMsg("创建失败!");
+            OrderItem orderItem = new OrderItem();
+            orderItem.setWeight(new BigDecimal(item.getWeight()));
+            orderItem.setLevel(item.getLevel());
+            orderItem.setUser(item.getUser());
+            orderItem.setOrder(item.getOrder());
+            boolean ret = orderItem.insert();
+            if (ret) {
+                res.setData(orderItem);
+            } else {
+                res.setMsg("创建失败!");
+            }
         }
         return res;
     }
