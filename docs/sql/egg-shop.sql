@@ -58,7 +58,7 @@ CREATE TABLE `egg_price` (
   `level` int(11) NOT NULL DEFAULT 6 COMMENT '层数',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建日期',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uniq_day_weight` (`day`,`weight`),
+  UNIQUE KEY `uniq_day_weight_level` (`day`,`weight`, `level`),
   KEY `idx_day` (`day`),
   KEY `idx_weight` (`weight`),
   KEY `idx_price` (`price`),

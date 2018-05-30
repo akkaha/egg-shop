@@ -1,7 +1,7 @@
 package cc.akkaha.shop.controllers;
 
 import cc.akkaha.shop.controllers.model.OrderBillInsert;
-import cc.akkaha.shop.controllers.model.PriceExtraUpdate;
+import cc.akkaha.shop.controllers.model.PriceExtraItem;
 import cc.akkaha.shop.db.model.Price;
 import cc.akkaha.shop.db.model.PriceExtra;
 import cc.akkaha.shop.db.service.PriceExtraService;
@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/shop/order-bill")
@@ -31,15 +32,24 @@ public class OrderBillController {
     @GetMapping("/query/{day}")
     public Object query(@PathVariable("day") String day) {
         ApiRes res = new ApiRes();
-        EntityWrapper<Price> wrapper = new EntityWrapper<>();
-        wrapper.eq(Price.DAY, day).orderBy(Price.ID, true);
-        List prices = priceService.selectList(wrapper);
+        EntityWrapper<Price> priceWrapper = new EntityWrapper<>();
+        priceWrapper.eq(Price.DAY, day).orderBy(Price.LEVEL + "," + Price.WEIGHT, true);
+        List<Price> prices = priceService.selectList(priceWrapper);
         EntityWrapper<PriceExtra> priceExtraMapper = new EntityWrapper<>();
         priceExtraMapper.eq(PriceExtra.DAY, day);
         PriceExtra priceExtra = priceExtraService.selectOne(priceExtraMapper);
         HashMap<String, Object> data = new HashMap<>();
-        data.put("prices", prices);
-        data.put("priceExtra", priceExtra);
+        data.put("prices", prices.stream().map(item -> new PriceItem(
+                item.getWeight().stripTrailingZeros().toPlainString(),
+                item.getPrice().stripTrailingZeros().toPlainString(),
+                item.getLevel()
+        )).collect(Collectors.toList()));
+        if (null != priceExtra) {
+            data.put("priceExtra", new PriceExtraItem(
+                    priceExtra.getId(),
+                    priceExtra.getWeightAdjust().stripTrailingZeros().toPlainString()
+            ));
+        }
         res.setData(data);
         return res;
     }
@@ -84,7 +94,7 @@ public class OrderBillController {
                 res.setMsg("操作失败");
             }
         }
-        PriceExtraUpdate priceExtra = insert.getPriceExtra();
+        PriceExtraItem priceExtra = insert.getPriceExtra();
         if (null != priceExtra
                 && StringUtils.isNotEmpty(priceExtra.getWeightAdjust())) {
             PriceExtra priceExtraDb = new PriceExtra();

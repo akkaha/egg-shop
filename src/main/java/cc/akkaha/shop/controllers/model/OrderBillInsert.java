@@ -7,7 +7,7 @@ import java.util.List;
 public class OrderBillInsert {
 
     List<PriceItem> items;
-    PriceExtraUpdate priceExtra;
+    PriceExtraItem priceExtra;
 
     public List<PriceItem> getItems() {
         return items;
@@ -17,11 +17,11 @@ public class OrderBillInsert {
         this.items = items;
     }
 
-    public PriceExtraUpdate getPriceExtra() {
+    public PriceExtraItem getPriceExtra() {
         return priceExtra;
     }
 
-    public void setPriceExtra(PriceExtraUpdate priceExtra) {
+    public void setPriceExtra(PriceExtraItem priceExtra) {
         this.priceExtra = priceExtra;
     }
 }
