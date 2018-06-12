@@ -32,6 +32,7 @@ public class BillServiceImpl implements BillService {
         PriceRange priceRange = getPriceRange(date);
         EntityWrapper<OrderItem> orderItemWrapper = new EntityWrapper<>();
         orderItemWrapper.eq("`" + OrderItem.ORDER + "`", id)
+                .gt(OrderItem.COUNT, 0)
                 .orderBy(OrderItem.LEVEL + "," + OrderItem.WEIGHT, true);
         List<OrderItem> orderItems = orderItemService.selectList(orderItemWrapper);
         EntityWrapper<cc.akkaha.shop.db.model.PriceExtra> priceExtraWrapper =
