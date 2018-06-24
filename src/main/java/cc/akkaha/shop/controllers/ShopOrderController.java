@@ -28,9 +28,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
@@ -61,6 +59,27 @@ public class ShopOrderController {
         if (null != query.getStatus()) {
             userOrderWrapper.eq(ShopOrder.STATUS, query.getStatus());
         }
+        Date start = null;
+        Date end = null;
+        try {
+            if (null != query.getStart() && null != query.getEnd()) {
+                start = org.apache.commons.lang3.time.DateUtils.parseDate(query.getStart(), "yyyy-MM-dd");
+                Date tmp = org.apache.commons.lang3.time.DateUtils.parseDate(query.getEnd(), "yyyy-MM-dd");
+                if (null != tmp) {
+                    end = org.apache.commons.lang3.time.DateUtils.addDays(tmp, 1);
+                }
+            } else {
+                Date now = new Date();
+                end = org.apache.commons.lang3.time.DateUtils.addDays(org.apache.commons.lang3.time.DateUtils.truncate(now, Calendar.DAY_OF_MONTH), 1);
+                start = org.apache.commons.lang3.time.DateUtils.addDays(end, -1);
+            }
+        } catch (Throwable t) {
+            res.markError("日期格式错误");
+            logger.warn(ExceptionUtils.getStackTrace(t));
+            return res;
+        }
+        userOrderWrapper.ge(ShopOrder.CREATED_AT, start);
+        userOrderWrapper.le(ShopOrder.CREATED_AT, end);
         Page page = shopOrderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
                         query.getSize(),
                         ShopOrder.CREATED_AT, false),

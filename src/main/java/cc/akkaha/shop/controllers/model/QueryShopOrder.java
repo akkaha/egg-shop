@@ -6,6 +6,8 @@ public class QueryShopOrder extends ShopOrder {
 
     private Integer current = 1;
     private Integer size = 10;
+    private String start;
+    private String end;
 
     public Integer getCurrent() {
         if (null == this.current) {
@@ -21,5 +23,21 @@ public class QueryShopOrder extends ShopOrder {
         } else {
             return this.size;
         }
+    }
+
+    public String getStart() {
+        return start;
+    }
+
+    public void setStart(String start) {
+        this.start = start;
+    }
+
+    public String getEnd() {
+        return end;
+    }
+
+    public void setEnd(String end) {
+        this.end = end;
     }
 }
