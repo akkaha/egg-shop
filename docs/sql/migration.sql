@@ -1,0 +1,1 @@
+alter table egg_shop_order add column `day_order` int(11) NOT NULL DEFAULT 0 COMMENT '每日序号' after id;

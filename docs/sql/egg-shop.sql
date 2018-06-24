@@ -21,6 +21,7 @@ CREATE TABLE `egg_shop_user` (
 
 CREATE TABLE `egg_shop_order` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
+  `day_order` int(11) DEFAULT NULL COMMENT '每日序号',
   `user` int(11) NOT NULL COMMENT '用户外键',
   `bill` longtext COMMENT '账单',
   `status` varchar(16) NOT NULL DEFAULT '' COMMENT '状态',

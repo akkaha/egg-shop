@@ -19,6 +19,11 @@ public class ShopOrder extends Model<ShopOrder> {
     @TableId(value="id", type= IdType.AUTO)
     private Integer id;
     /**
+     * 每日序号
+     */
+    @TableField("day_order")
+    private Integer dayOrder;
+    /**
      * 用户外键
      */
     private Integer user;
@@ -52,6 +57,14 @@ public class ShopOrder extends Model<ShopOrder> {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Integer getDayOrder() {
+        return dayOrder;
+    }
+
+    public void setDayOrder(Integer dayOrder) {
+        this.dayOrder = dayOrder;
     }
 
     public Integer getUser() {
@@ -103,6 +116,8 @@ public class ShopOrder extends Model<ShopOrder> {
     }
 
     public static final String ID = "id";
+
+    public static final String DAY_ORDER = "day_order";
 
     public static final String USER = "user";
 
