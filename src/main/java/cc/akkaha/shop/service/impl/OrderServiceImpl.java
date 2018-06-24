@@ -6,19 +6,21 @@ import cc.akkaha.shop.controllers.model.OrderDetail;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
 import cc.akkaha.shop.db.service.OrderItemService;
+import cc.akkaha.shop.db.service.ShopOrderService;
 import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 public class OrderServiceImpl implements OrderService {
 
+    @Autowired
+    private ShopOrderService shopOrderService;
     @Autowired
     private OrderItemService orderItemService;
 
@@ -28,7 +30,15 @@ public class OrderServiceImpl implements OrderService {
             List<String> sixWeights,
             List<String> sevenWeights
     ) throws DatabaseOperationException {
+        Date now = new Date();
+        Date end = DateUtils.addDays(DateUtils.truncate(now, Calendar.DAY_OF_MONTH), 1);
+        Date start = DateUtils.addDays(end, -1);
+        EntityWrapper<ShopOrder> shopOrderEntityWrapper = new EntityWrapper<>();
+        shopOrderEntityWrapper.ge(ShopOrder.CREATED_AT, start);
+        shopOrderEntityWrapper.lt(ShopOrder.CREATED_AT, end);
+        int count = shopOrderService.selectCount(shopOrderEntityWrapper);
         ShopOrder shopOrder = new ShopOrder();
+        shopOrder.setDayOrder(count + 1);
         shopOrder.setUser(userId);
         shopOrder.setStatus(OrderStatus.STATUS_NEW);
         boolean bInsert = shopOrder.insert();

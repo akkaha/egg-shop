@@ -90,10 +90,10 @@ public class ShopOrderController {
             return res;
         }
         userOrderWrapper.ge(ShopOrder.CREATED_AT, start);
-        userOrderWrapper.le(ShopOrder.CREATED_AT, end);
+        userOrderWrapper.lt(ShopOrder.CREATED_AT, end);
         Page page = shopOrderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
                         query.getSize(),
-                        ShopOrder.CREATED_AT, false),
+                        ShopOrder.DAY_ORDER, true),
                 userOrderWrapper);
         ArrayList<ShopOrderItem> shopOrderItems = new ArrayList<>();
         data.put("list", shopOrderItems);
@@ -108,6 +108,7 @@ public class ShopOrderController {
                         ShopOrderItem shopOrderItem = new ShopOrderItem();
                         shopOrderItems.add(shopOrderItem);
                         shopOrderItem.setId(order.getId());
+                        shopOrderItem.setDayOrder(order.getDayOrder());
                         shopOrderItem.setStatus(order.getStatus());
                         shopOrderItem.setCreatedAt(order.getCreatedAt());
                         Integer userId = order.getUser();

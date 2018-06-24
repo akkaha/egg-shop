@@ -6,6 +6,7 @@ import java.util.Date;
 public class ShopOrderItem {
 
     private Integer id;
+    private Integer dayOrder;
     private String user;
     private BigDecimal count;
     private String status;
@@ -49,5 +50,13 @@ public class ShopOrderItem {
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public Integer getDayOrder() {
+        return dayOrder;
+    }
+
+    public void setDayOrder(Integer dayOrder) {
+        this.dayOrder = dayOrder;
     }
 }
