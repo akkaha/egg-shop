@@ -8,6 +8,7 @@ public class QueryShopOrder extends ShopOrder {
     private Integer size = 10;
     private String start;
     private String end;
+    private String userName;
 
     public Integer getCurrent() {
         if (null == this.current) {
@@ -39,5 +40,13 @@ public class QueryShopOrder extends ShopOrder {
 
     public void setEnd(String end) {
         this.end = end;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

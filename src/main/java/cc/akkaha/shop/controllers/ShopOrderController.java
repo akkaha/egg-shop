@@ -59,6 +59,17 @@ public class ShopOrderController {
         if (null != query.getStatus()) {
             userOrderWrapper.eq(ShopOrder.STATUS, query.getStatus());
         }
+        if (StringUtils.isNotEmpty(query.getUserName())) {
+            EntityWrapper<ShopUser> userEntityWrapper = new EntityWrapper<>();
+            userEntityWrapper.like(ShopUser.NAME, query.getUserName());
+            List<Integer> userIds = shopUserService.selectList(userEntityWrapper)
+                    .stream()
+                    .map(ShopUser::getId)
+                    .collect(Collectors.toList());
+            if (null != userIds && !userIds.isEmpty()) {
+                userOrderWrapper.in(ShopOrder.USER, userIds);
+            }
+        }
         Date start = null;
         Date end = null;
         try {
