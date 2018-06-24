@@ -74,6 +74,10 @@ public class OrderServiceImpl implements OrderService {
                 .setSqlSelect("sum(" + OrderItem.COUNT + ") count")
                 .eq("`" + OrderItem.ORDER + "`", id);
         Map<String, Object> map = orderItemService.selectMap(orderItemWrapper);
-        return (BigDecimal) map.getOrDefault("count", 0);
+        if (null != map) {
+            return (BigDecimal) map.getOrDefault("count", 0);
+        } else {
+            return BigDecimal.ZERO;
+        }
     }
 }
