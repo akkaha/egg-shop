@@ -9,6 +9,7 @@ import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.db.service.ShopOrderService;
 import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import com.baomidou.mybatisplus.plugins.Page;
 import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -36,9 +37,15 @@ public class OrderServiceImpl implements OrderService {
         EntityWrapper<ShopOrder> shopOrderEntityWrapper = new EntityWrapper<>();
         shopOrderEntityWrapper.ge(ShopOrder.CREATED_AT, start);
         shopOrderEntityWrapper.lt(ShopOrder.CREATED_AT, end);
-        int count = shopOrderService.selectCount(shopOrderEntityWrapper);
+        shopOrderEntityWrapper.orderBy(ShopOrder.DAY_ORDER, false);
+        Page<ShopOrder> pages = shopOrderService.selectPage(new Page<>(0, 1), shopOrderEntityWrapper);
         ShopOrder shopOrder = new ShopOrder();
-        shopOrder.setDayOrder(count + 1);
+        if (null != pages && !pages.getRecords().isEmpty()) {
+            ShopOrder countOrder = pages.getRecords().get(0);
+            shopOrder.setDayOrder(countOrder.getDayOrder() + 1);
+        } else {
+            shopOrder.setDayOrder(1);
+        }
         shopOrder.setUser(userId);
         shopOrder.setStatus(OrderStatus.STATUS_NEW);
         boolean bInsert = shopOrder.insert();
