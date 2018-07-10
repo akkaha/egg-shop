@@ -93,7 +93,7 @@ public class ShopOrderController {
         userOrderWrapper.lt(ShopOrder.CREATED_AT, end);
         Page page = shopOrderService.selectPage(new Page<ShopOrder>(query.getCurrent(),
                         query.getSize(),
-                        ShopOrder.DAY_ORDER, true),
+                        ShopOrder.CREATED_AT, false),
                 userOrderWrapper);
         ArrayList<ShopOrderItem> shopOrderItems = new ArrayList<>();
         data.put("list", shopOrderItems);
