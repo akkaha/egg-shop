@@ -35,6 +35,10 @@ public class ShopUser extends Model<ShopUser> {
      */
     private String remark;
     /**
+     * 扩展信息
+     */
+    private String ext;
+    /**
      * 创建时间
      */
     @TableField("created_at")
@@ -86,6 +90,14 @@ public class ShopUser extends Model<ShopUser> {
         this.remark = remark;
     }
 
+    public String getExt() {
+        return ext;
+    }
+
+    public void setExt(String ext) {
+        this.ext = ext;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -111,6 +123,8 @@ public class ShopUser extends Model<ShopUser> {
     public static final String PHONE = "phone";
 
     public static final String REMARK = "remark";
+
+    public static final String EXT = "ext";
 
     public static final String CREATED_AT = "created_at";
 

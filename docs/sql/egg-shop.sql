@@ -10,6 +10,7 @@ CREATE TABLE `egg_shop_user` (
   `country` varchar(128) NOT NULL DEFAULT '' COMMENT '村庄',
   `phone` varchar(16) NOT NULL DEFAULT '' COMMENT '手机号',
   `remark` longtext COMMENT '备注',
+  `ext` longtext COMMENT '扩展信息',
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '修改时间',
   PRIMARY KEY (`id`),

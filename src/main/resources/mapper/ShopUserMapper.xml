@@ -9,13 +9,14 @@
         <result column="country" property="country" />
         <result column="phone" property="phone" />
         <result column="remark" property="remark" />
+        <result column="ext" property="ext" />
         <result column="created_at" property="createdAt" />
         <result column="updated_at" property="updatedAt" />
     </resultMap>
 
     <!-- 通用查询结果列 -->
     <sql id="Base_Column_List">
-        id, name, country, phone, remark, created_at AS createdAt, updated_at AS updatedAt
+        id, name, country, phone, remark, ext, created_at AS createdAt, updated_at AS updatedAt
     </sql>
 
 </mapper>
