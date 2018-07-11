@@ -3,10 +3,7 @@ package cc.akkaha.shop.controllers;
 import cc.akkaha.common.util.DateUtils;
 import cc.akkaha.common.util.JsonUtils;
 import cc.akkaha.shop.constants.OrderStatus;
-import cc.akkaha.shop.controllers.model.NewOrder;
-import cc.akkaha.shop.controllers.model.OrderDetail;
-import cc.akkaha.shop.controllers.model.QueryShopOrder;
-import cc.akkaha.shop.controllers.model.ShopOrderItem;
+import cc.akkaha.shop.controllers.model.*;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
 import cc.akkaha.shop.db.model.ShopUser;
@@ -14,6 +11,7 @@ import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.db.service.ShopOrderService;
 import cc.akkaha.shop.db.service.ShopUserService;
 import cc.akkaha.shop.model.ApiRes;
+import cc.akkaha.shop.model.BillItem;
 import cc.akkaha.shop.model.OrderBill;
 import cc.akkaha.shop.service.BillService;
 import cc.akkaha.shop.service.OrderService;
@@ -185,6 +183,36 @@ public class ShopOrderController {
         ApiRes res = new ApiRes();
         boolean ret = order.updateById();
         if (ret) {
+            if (OrderStatus.STATUS_FINISHED.equals(order.getStatus())) {
+                try {
+                    String billStr = order.getBill();
+                    if (StringUtils.isNotEmpty(billStr)) {
+                        OrderBill bill = JsonUtils.parse(order.getBill(), OrderBill.class);
+                        List<BillItem> items = bill.getItems();
+                        ArrayList<String> sixWeights = new ArrayList<>();
+                        ArrayList<String> sevenWeights = new ArrayList<>();
+                        if (null != items && !items.isEmpty()) {
+                            items.stream().forEach(item -> {
+                                if (6 == item.getLevel()) {
+                                    sixWeights.add(item.getWeight());
+                                } else if (7 == item.getLevel()) {
+                                    sevenWeights.add(item.getWeight());
+                                }
+                            });
+                        }
+                        if (!sixWeights.isEmpty() && !sevenWeights.isEmpty()) {
+                            UserExt userExt = new UserExt();
+                            userExt.setSixWeights(sixWeights);
+                            userExt.setSevenWeights(sevenWeights);
+                            ShopUser shopUser = new ShopUser();
+                            shopUser.setId(order.getUser());
+                            shopUser.setExt(JsonUtils.stringfy(userExt));
+                            shopUserService.updateById(shopUser);
+                        }
+                    }
+                } catch (Throwable t) {
+                }
+            }
             res.setData(order);
         } else {
             res.setMsg("更新失败!");

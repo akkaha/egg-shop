@@ -1,16 +1,12 @@
 package cc.akkaha.shop.service.impl;
 
 import cc.akkaha.common.exceptions.DatabaseOperationException;
-import cc.akkaha.common.util.JsonUtils;
 import cc.akkaha.shop.constants.OrderStatus;
 import cc.akkaha.shop.controllers.model.OrderDetail;
-import cc.akkaha.shop.controllers.model.UserExt;
 import cc.akkaha.shop.db.model.OrderItem;
 import cc.akkaha.shop.db.model.ShopOrder;
-import cc.akkaha.shop.db.model.ShopUser;
 import cc.akkaha.shop.db.service.OrderItemService;
 import cc.akkaha.shop.db.service.ShopOrderService;
-import cc.akkaha.shop.db.service.ShopUserService;
 import cc.akkaha.shop.service.OrderService;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import com.baomidou.mybatisplus.plugins.Page;
@@ -25,8 +21,6 @@ import java.util.*;
 public class OrderServiceImpl implements OrderService {
 
     @Autowired
-    private ShopUserService shopUserService;
-    @Autowired
     private ShopOrderService shopOrderService;
     @Autowired
     private OrderItemService orderItemService;
@@ -37,13 +31,6 @@ public class OrderServiceImpl implements OrderService {
             List<String> sixWeights,
             List<String> sevenWeights
     ) throws DatabaseOperationException {
-        UserExt userExt = new UserExt();
-        userExt.setSixWeights(sixWeights);
-        userExt.setSevenWeights(sevenWeights);
-        ShopUser shopUser = new ShopUser();
-        shopUser.setId(userId);
-        shopUser.setExt(JsonUtils.stringfy(userExt));
-        shopUserService.updateById(shopUser);
         Date now = new Date();
         Date end = DateUtils.addDays(DateUtils.truncate(now, Calendar.DAY_OF_MONTH), 1);
         Date start = DateUtils.addDays(end, -1);
