@@ -200,15 +200,13 @@ public class ShopOrderController {
                                 }
                             });
                         }
-                        if (!sixWeights.isEmpty() && !sevenWeights.isEmpty()) {
-                            UserExt userExt = new UserExt();
-                            userExt.setSixWeights(sixWeights);
-                            userExt.setSevenWeights(sevenWeights);
-                            ShopUser shopUser = new ShopUser();
-                            shopUser.setId(order.getUser());
-                            shopUser.setExt(JsonUtils.stringfy(userExt));
-                            shopUserService.updateById(shopUser);
-                        }
+                        UserExt userExt = new UserExt();
+                        userExt.setSixWeights(sixWeights);
+                        userExt.setSevenWeights(sevenWeights);
+                        ShopUser shopUser = new ShopUser();
+                        shopUser.setId(order.getUser());
+                        shopUser.setExt(JsonUtils.stringfy(userExt));
+                        shopUserService.updateById(shopUser);
                     }
                 } catch (Throwable t) {
                 }
