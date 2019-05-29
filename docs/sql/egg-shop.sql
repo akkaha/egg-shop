@@ -18,7 +18,7 @@ CREATE TABLE `egg_shop_user` (
   KEY `idx_country` (`country`),
   KEY `idx_phone` (`phone`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='客户信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='客户信息';
 
 CREATE TABLE `egg_shop_order` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -33,7 +33,7 @@ CREATE TABLE `egg_shop_order` (
   KEY `idx_user` (`user`),
   KEY `idx_status` (`status`),
   KEY `idx_created_at` (`created_at`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单信息';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='订单信息';
 
 CREATE TABLE `egg_order_item` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -50,7 +50,7 @@ CREATE TABLE `egg_order_item` (
   KEY `fk_user` (`user`),
   KEY `fk_level` (`level`),
   CONSTRAINT `fk_order` FOREIGN KEY (`order`) REFERENCES `egg_shop_order` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='单子每斤';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='单子每斤';
 
 CREATE TABLE `egg_price` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -65,7 +65,7 @@ CREATE TABLE `egg_price` (
   KEY `idx_weight` (`weight`),
   KEY `idx_price` (`price`),
   KEY `idx_level` (`level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='价格';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='价格';
 
 CREATE TABLE `egg_price_extra` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '自增主键',
@@ -75,4 +75,4 @@ CREATE TABLE `egg_price_extra` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uniq_day` (`day`),
   KEY `idx_weight_adjust` (`weight_adjust`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='价格其他';
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COMMENT='价格其他';
